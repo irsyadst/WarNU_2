@@ -9,72 +9,67 @@
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Gambar Produk -->
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivProduk"
+            android:id="@+id/iv_product"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
             tools:src="@drawable/placeholder_image" />
 
-        <!-- Grup Teks -->
         <LinearLayout
-            android:id="@+id/layoutTextContainer"
+            android:id="@+id/layout_text_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnEdit"
-            app:layout_constraintStart_toEndOf="@id/ivProduk"
+            app:layout_constraintEnd_toStartOf="@+id/btn_edit"
+            app:layout_constraintStart_toEndOf="@id/iv_product"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/tvNamaProduk"
+                android:id="@+id/tv_product_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="Madu Premium" />
+                tools:text="Premium Honey" />
 
             <TextView
-                android:id="@+id/tvHargaStok"
+                android:id="@+id/tv_price_stock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="14sp"
-                tools:text="Rp 25.000 - Stok: 20" />
+                tools:text="Rp 25.000 - Stock: 20" />
 
         </LinearLayout>
 
-        <!-- Tombol Edit -->
         <ImageButton
-            android:id="@+id/btnEdit"
+            android:id="@+id/btn_edit"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_edit"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnHapus"
+            app:layout_constraintEnd_toStartOf="@id/btn_delete"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#1976D2"
-            tools:ignore="ContentDescription" />
+            android:contentDescription="Edit Button" />
 
-        <!-- Tombol Hapus -->
         <ImageButton
-            android:id="@+id/btnHapus"
+            android:id="@+id/btn_delete"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -83,8 +78,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#D32F2F"
-            tools:ignore="ContentDescription" />
+            android:contentDescription="Delete Button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </com.google.android.material.card.MaterialCardView>

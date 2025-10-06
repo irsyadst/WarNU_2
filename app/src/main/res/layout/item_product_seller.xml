@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_product_seller"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/product_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
+            tools:src="@drawable/placeholder_image" />
+
+        <TextView
+            android:id="@+id/tv_product_name_seller"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/iv_product_seller"
+            app:layout_constraintTop_toTopOf="@id/iv_product_seller"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Product Name" />
+
+        <TextView
+            android:id="@+id/tv_product_price_seller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="@id/tv_product_name_seller"
+            app:layout_constraintTop_toBottomOf="@id/tv_product_name_seller"
+            tools:text="Rp 150,000" />
+
+        <TextView
+            android:id="@+id/tv_product_stock_seller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/tv_product_price_seller"
+            app:layout_constraintTop_toBottomOf="@id/tv_product_price_seller"
+            tools:text="Stock: 50" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

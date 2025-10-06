@@ -1,79 +1,90 @@
+// app/src/main/java/com/imersa/warnu/ui/seller/product/AddProductViewModel.kt
 package com.imersa.warnu.ui.seller.product
 
 import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.imersa.warnu.data.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.*
 import javax.inject.Inject
+
+sealed class AddProductState {
+    object Idle : AddProductState()
+    object Loading : AddProductState()
+    data class Success(val message: String) : AddProductState()
+    data class Error(val message: String) : AddProductState()
+}
 
 @HiltViewModel
 class AddProductViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<AddProductState>(AddProductState.Idle)
-    val state: StateFlow<AddProductState> get() = _state
+    private val _state = MutableLiveData<AddProductState>(AddProductState.Idle)
+    val state: LiveData<AddProductState> = _state
+
     fun addProduct(
-        name: String?,
-        price: String?,
-        description: String?,
-        stock: String?,
-        category: String?,
+        name: String,
+        priceStr: String,
+        stockStr: String,
+        category: String,
+        description: String,
         imageUri: Uri?
     ) {
+        if (name.isBlank() || priceStr.isBlank() || stockStr.isBlank() || category.isBlank() || description.isBlank() || imageUri == null) {
+            _state.value = AddProductState.Error("All fields and image must be filled.")
+            return
+        }
+        val price = priceStr.toDoubleOrNull()
+        val stock = stockStr.toIntOrNull()
+        if (price == null || stock == null) {
+            _state.value = AddProductState.Error("Price and stock must be valid numbers.")
+            return
+        }
+
+        _state.value = AddProductState.Loading
         viewModelScope.launch {
-            val currentUser = auth.currentUser
-            if (currentUser == null) {
-                _state.value = AddProductState.Error("User tidak ditemukan")
-                return@launch
-            }
-
-            if (imageUri == null) {
-                _state.value = AddProductState.Error("Gambar harus dipilih")
-                return@launch
-            }
-
-            _state.value = AddProductState.Loading
-
             try {
-                val imageRef = storage.reference
-                    .child("product_images/${currentUser.uid}/${System.currentTimeMillis()}.jpg")
+                val sellerId = auth.currentUser?.uid ?: throw Exception("User not logged in.")
 
-                // Upload file
-                imageRef.putFile(imageUri).await()
+                val userDocument = firestore.collection("users").document(sellerId).get().await()
+                val storeName = userDocument.getString("storeName") ?: throw Exception("Store name not found.")
 
-                // Ambil download URL
-                val downloadUrl = imageRef.downloadUrl.await()
+                val imageFileName = "product_images/${UUID.randomUUID()}"
+                val storageRef = storage.reference.child(imageFileName)
+                val uploadTask = storageRef.putFile(imageUri).await()
+                val imageUrl = uploadTask.storage.downloadUrl.await().toString()
 
-                // Simpan ke Firestore
-                val product = hashMapOf(
-                    "name" to name,
-                    "price" to price?.toDoubleOrNull(),
-                    "description" to description,
-                    "stock" to stock?.toIntOrNull(),
-                    "category" to category,
-                    "imageUrl" to downloadUrl.toString(),
-                    "sellerId" to currentUser.uid,
-                    "createdAt" to System.currentTimeMillis()
+                val newProductRef = firestore.collection("products").document()
+                val productId = newProductRef.id
+
+                val product = Product(
+                    id = productId,
+                    name = name,
+                    price = price,
+                    description = description,
+                    stock = stock,
+                    category = category,
+                    imageUrl = imageUrl,
+                    sellerId = sellerId,
+                    storeName = storeName
                 )
 
-                firestore.collection("products")
-                    .add(product)
-                    .await()
-
-                _state.value = AddProductState.Success
+                newProductRef.set(product).await()
+                _state.postValue(AddProductState.Success("Product added successfully!"))
 
             } catch (e: Exception) {
-                _state.value = AddProductState.Error("Error: ${e.message}")
+                _state.postValue(AddProductState.Error(e.message ?: "Failed to add product."))
             }
         }
     }
@@ -81,11 +92,4 @@ class AddProductViewModel @Inject constructor(
     fun resetState() {
         _state.value = AddProductState.Idle
     }
-}
-
-sealed class AddProductState {
-    object Idle : AddProductState()
-    object Loading : AddProductState()
-    object Success : AddProductState()
-    data class Error(val message: String) : AddProductState()
 }

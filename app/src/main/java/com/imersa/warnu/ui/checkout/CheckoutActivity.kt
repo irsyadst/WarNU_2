@@ -1,198 +1,190 @@
 package com.imersa.warnu.ui.checkout
 
-import android.app.Activity
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.imersa.warnu.R
-import com.imersa.warnu.data.model.ApiService
-import com.imersa.warnu.data.model.CartItem
-import com.imersa.warnu.data.model.CustomerDetails
-import com.imersa.warnu.data.model.ItemDetails
-import com.imersa.warnu.data.model.TransactionRequest
-import com.imersa.warnu.data.model.TransactionResponse
-import com.imersa.warnu.data.model.UserProfile
-import com.midtrans.sdk.uikit.api.model.TransactionResult
-import com.midtrans.sdk.uikit.external.UiKitApi
-import com.midtrans.sdk.uikit.internal.util.UiKitConstants
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.imersa.warnu.data.model.*
+import com.imersa.warnu.databinding.ActivityCheckoutBinding
+import com.imersa.warnu.ui.buyer.cart.CartViewModel
+import com.imersa.warnu.ui.buyer.main.MainBuyerActivity
+import dagger.hilt.android.AndroidEntryPoint
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CheckoutActivity : AppCompatActivity() {
 
-    private val BASE_URL = "http://10.0.2.2:3000/"
-    private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private lateinit var binding: ActivityCheckoutBinding
+    private val cartViewModel: CartViewModel by viewModels()
 
-    private val uikitLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val transactionResult = result.data?.getParcelableExtra<TransactionResult>(UiKitConstants.KEY_TRANSACTION_RESULT)
-        handleTransactionResult(transactionResult)
+    @Inject
+    lateinit var auth: FirebaseAuth
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    private val apiService: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://warnu-f1434.et.r.appspot.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
-
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_checkout)
+        binding = ActivityCheckoutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        supportActionBar?.hide()
 
-        val totalAmount = intent.getDoubleExtra("TOTAL_AMOUNT", 0.0)
-        fetchAllDataAndProceed(totalAmount)
+        binding.progressBar.visibility = View.VISIBLE
+        setupWebView()
+
+        val cartItemsJson = intent.getStringExtra("CART_ITEMS")
+        if (cartItemsJson != null) {
+            val itemType = object : TypeToken<List<CartItem>>() {}.type
+            val cartItems: List<CartItem> = Gson().fromJson(cartItemsJson, itemType)
+            startCheckout(cartItems)
+        } else {
+            Toast.makeText(this, "Cart is empty.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
-    private fun fetchAllDataAndProceed(totalAmount: Double) {
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView() {
+        binding.webView.settings.javaScriptEnabled = true
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                binding.progressBar.visibility = View.GONE
+            }
+
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url != null) {
+                    if (url.contains("finish")) {
+                        navigateToHome("Payment Successful")
+                        return true
+                    } else if (url.contains("unfinish")) {
+                        navigateToHome("Payment Pending")
+                        return true
+                    } else if (url.contains("error")) {
+                        navigateToHome("Payment Failed")
+                        return true
+                    }
+                }
+                return false
+            }
+        }
+    }
+
+
+    private fun startCheckout(cartItems: List<CartItem>) {
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Toast.makeText(this, "Anda harus login untuk melanjutkan", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        val userProfileRef = db.collection("users").document(userId)
-        userProfileRef.get().addOnSuccessListener { userDocument ->
-            if (userDocument == null || !userDocument.exists()) {
-                Toast.makeText(this, "Profil pengguna tidak ditemukan.", Toast.LENGTH_SHORT).show()
-                finish()
-                return@addOnSuccessListener
-            }
-            val userProfile = userDocument.toObject(UserProfile::class.java)
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val userName = document.getString("name")
+                val userEmail = document.getString("email")
+                val userPhone = document.getString("phone")
+                val userAddress = document.getString("address")
 
-            db.collection("carts").document(userId).collection("items").get()
-                .addOnSuccessListener { cartSnapshot ->
-                    if (cartSnapshot.isEmpty) {
-                        Toast.makeText(this, "Keranjang Anda kosong.", Toast.LENGTH_SHORT).show()
-                        finish()
-                        return@addOnSuccessListener
-                    }
-                    val cartItems = cartSnapshot.toObjects(CartItem::class.java)
-                    getSnapToken(totalAmount, cartItems, userProfile)
-                }
-                .addOnFailureListener { e ->
-                    Log.e("CheckoutActivity", "Gagal mengambil item keranjang:", e)
-                    Toast.makeText(this, "Gagal memuat data keranjang.", Toast.LENGTH_SHORT).show()
+                if (userAddress.isNullOrEmpty()) {
+                    Toast.makeText(this, "Please update your address in your profile.", Toast.LENGTH_LONG).show()
                     finish()
+                    return@addOnSuccessListener
                 }
-        }.addOnFailureListener { e ->
-            Log.e("CheckoutActivity", "Gagal mengambil profil pengguna:", e)
-            Toast.makeText(this, "Gagal memuat profil pengguna.", Toast.LENGTH_SHORT).show()
-            finish()
-        }
+
+                val customerDetails = CustomerDetails(
+                    userId = userId,
+                    name = userName,
+                    email = userEmail,
+                    phone = userPhone,
+                    address = userAddress
+                )
+
+                val allItemDetails = cartItems.map {
+                    ItemDetails(
+                        id = it.productId!!,
+                        price = it.price!!,
+                        quantity = it.quantity,
+                        name = it.name!!,
+                        imageUrl = it.imageUrl,
+                        sellerId = it.sellerId,
+                        storeName = it.storeName
+                    )
+                }
+                val transactionRequest = MultiVendorTransactionRequest(
+                    allItems = allItemDetails,
+                    customerDetails = customerDetails
+                )
+
+
+                apiService.createMultiVendorTransaction(transactionRequest).enqueue(object : retrofit2.Callback<TransactionResponse> {
+                    override fun onResponse(call: retrofit2.Call<TransactionResponse>, response: retrofit2.Response<TransactionResponse>) {
+                        binding.progressBar.visibility = View.GONE
+                        if (response.isSuccessful) {
+                            val token = response.body()?.token
+                            if (!token.isNullOrEmpty()) {
+                                val midtransUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/$token"
+                                binding.webView.loadUrl(midtransUrl)
+                            } else {
+                                Toast.makeText(this@CheckoutActivity, "Failed to get payment token.", Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
+                        } else {
+                            val errorBody = response.errorBody()?.string()
+                            val errorMessage = try { JSONObject(errorBody!!).getString("error") } catch (e: Exception) { "Unknown server error." }
+                            Toast.makeText(this@CheckoutActivity, "Checkout failed: $errorMessage", Toast.LENGTH_LONG).show()
+                            finish()
+                        }
+                    }
+
+                    override fun onFailure(call: retrofit2.Call<TransactionResponse>, t: Throwable) {
+                        binding.progressBar.visibility = View.GONE
+                        Log.e("CheckoutActivity", "API Call Failure", t)
+                        Toast.makeText(this@CheckoutActivity, "Failed to connect to server: ${t.message}", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                })
+            }
+            .addOnFailureListener {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(this, "Failed to get user data.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
     }
 
-    private fun getSnapToken(totalAmount: Double, cartItems: List<CartItem>, userProfile: UserProfile?) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val apiService = retrofit.create(ApiService::class.java)
-
-        val itemDetails = cartItems.map {
-            // PERBAIKAN 1: Gunakan 'productName' sesuai model data CartItem
-            ItemDetails(
-                id = it.productId ?: "",
-                price = it.price ?: 0.0,
-                quantity = it.quantity,
-                name = it.name ?: "Produk Tanpa Nama"
-            )
-        }
-
-        val customerDetails = CustomerDetails(
-            // PERBAIKAN 2: Gunakan 'fullName' sesuai model data UserProfile
-            first_name = userProfile?.name ?: "Pengguna WarNU",
-            email = userProfile?.email ?: "email@tidakada.com",
-            phone = userProfile?.phone ?: "08123456789"
-        )
-
-        val firebaseUser = auth.currentUser
-        val request = TransactionRequest(
-            orderId = "WARNU-ORDER-" + System.currentTimeMillis(),
-            totalAmount = totalAmount,
-            items = itemDetails,
-            customerDetails = customerDetails,
-            userId = firebaseUser?.uid
-        )
-
-        apiService.createTransaction(request).enqueue(object : Callback<TransactionResponse> {
-            override fun onResponse(call: Call<TransactionResponse>, response: Response<TransactionResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    startPayment(response.body()!!.token)
-                } else {
-                    Log.e("CheckoutActivity", "Gagal mendapatkan token: ${response.errorBody()?.string()}")
-                    Toast.makeText(this@CheckoutActivity, "Gagal mendapatkan token pembayaran.", Toast.LENGTH_SHORT).show()
-                    finish() // Tutup jika gagal dapat token
-                }
+    private fun navigateToHome(message: String) {
+        if (!isFinishing) {
+            if (message == "Payment Successful") {
+                cartViewModel.clearCart()
             }
-            override fun onFailure(call: Call<TransactionResponse>, t: Throwable) {
-                Log.e("CheckoutActivity", "Koneksi Error: ${t.message}")
-                Toast.makeText(this@CheckoutActivity, "Koneksi ke server gagal.", Toast.LENGTH_SHORT).show()
-                finish() // Tutup jika koneksi gagal
-            }
-        })
-    }
 
-    private fun startPayment(snapToken: String) {
-        UiKitApi.Builder()
-            .withMerchantClientKey("MASUKKAN_CLIENT_KEY_ANDA")
-            .withContext(this)
-            .withMerchantUrl(BASE_URL)
-            .enableLog(true)
-            .build()
-
-        UiKitApi.getDefaultInstance().startPaymentUiFlow(
-            activity = this,
-            launcher = uikitLauncher,
-            snapToken = snapToken
-        )
-    }
-
-    private fun handleTransactionResult(result: TransactionResult?) {
-        if (result == null) {
-            Toast.makeText(this, "Transaksi dibatalkan", Toast.LENGTH_LONG).show()
-        } else {
-            val message: String
-
-            // PERBAIKAN 3: Gunakan STATUS_SUCCESS dan kosongkan keranjang saat PENDING juga
-            when (result.status) {
-                UiKitConstants.STATUS_SUCCESS, UiKitConstants.STATUS_PENDING -> {
-                    message = "Pesanan berhasil dibuat!"
-                    // Kosongkan keranjang karena pesanan sudah dibuat
-                    clearCart()
-                }
-                UiKitConstants.STATUS_FAILED -> {
-                    message = "Transaksi Gagal: ${result.transactionId}"
-                }
-                UiKitConstants.STATUS_CANCELED -> {
-                    message = "Transaksi Dibatalkan"
-                }
-                else -> {
-                    message = "Status Transaksi Tidak Valid"
-                }
-            }
             Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        }
-
-        // Selalu kirim sinyal dan tutup activity setelah proses selesai
-        setResult(Activity.RESULT_OK)
-        finish()
-    }
-
-    private fun clearCart() {
-        val userId = auth.currentUser?.uid ?: return
-        val cartItemsRef = db.collection("carts").document(userId).collection("items")
-
-        cartItemsRef.get().addOnSuccessListener { snapshot ->
-            if (snapshot.isEmpty) return@addOnSuccessListener
-            val batch = db.batch()
-            for (document in snapshot.documents) {
-                batch.delete(document.reference)
+            val intent = Intent(this, MainBuyerActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            batch.commit()
-                .addOnSuccessListener { Log.d("CheckoutActivity", "Keranjang berhasil dikosongkan.") }
-                .addOnFailureListener { e -> Log.e("CheckoutActivity", "Gagal mengosongkan keranjang:", e) }
+            startActivity(intent)
+            finish()
         }
     }
 }

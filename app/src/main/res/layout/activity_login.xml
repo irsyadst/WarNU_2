@@ -1,209 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_login">
+    android:background="@color/white_login"
+    android:fillViewport="true"
+    tools:context=".ui.login.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingLeft="24dp"
+        android:paddingTop="48dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="24dp">
 
-        <!-- Logo -->
         <ImageView
-            android:id="@+id/logoImage"
+            android:id="@+id/iv_logo"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/ic_bike_logo"
-            android:contentDescription="Logo"
-            android:layout_marginTop="48dp"
-            />
-
-        <!-- Title -->
+            android:contentDescription="@string/logo"
+            android:src="@drawable/ic_bike_logo" />
 
         <TextView
+            android:id="@+id/tv_title_line1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Login to your"
+            android:layout_marginTop="24dp"
+            android:text="@string/login_to_your"
             android:textColor="#111827"
-
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/tv_title_line2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Account"
-            android:textStyle="bold"
-            android:textSize="24sp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/account"
             android:textColor="#111827"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp"/>
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <!-- Subtitle -->
         <TextView
+            android:id="@+id/tv_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enter your email and password to log in"
-            android:textColor="#6B7280"
-            android:textSize="14sp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginTop="8dp"
+            android:text="@string/enter_your_email_and_password_to_log_in"
+            android:textColor="#6B7280"
+            android:textSize="14sp" />
 
-        <!-- Email Input -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginTop="32dp">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/et_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:background="@drawable/edittext_background"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <EditText
-                    android:id="@+id/emailInput"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Email"
-                    android:background="@android:color/transparent"
-                    android:textColor="#000000"
-                    android:textColorHint="#9CA3AF"
-                    android:textSize="16sp"
-                    android:padding="0dp" />
-
-            </LinearLayout>
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:padding="16dp"
+                android:autofillHints="" />
         </FrameLayout>
 
-        <!-- Password Input with Show/Hide -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginTop="16dp">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/et_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:background="@drawable/edittext_background"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <EditText
-                    android:id="@+id/password"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Password"
-                    android:background="@android:color/transparent"
-                    android:inputType="textPassword"
-                    android:textColor="#000000"
-                    android:textColorHint="#9CA3AF"
-                    android:textSize="16sp"
-                    android:padding="0dp" />
-            </LinearLayout>
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:padding="16dp"
+                android:autofillHints="" />
 
             <ImageView
-                android:id="@+id/showPassword"
+                android:id="@+id/iv_show_password"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_closed_eye"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Toggle Password Visibility" />
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/toggle_password_visibility"
+                android:src="@drawable/ic_closed_eye" />
         </FrameLayout>
 
-        <!-- Forgot Password -->
-        <TextView
-            android:id="@+id/forgotPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Forgot Password ?"
-            android:textColor="#2563EB"
-            android:textSize="14sp"
-            android:layout_gravity="end"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Log In Button -->
         <Button
-            android:id="@+id/loginButton"
+            android:id="@+id/btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log In"
+            android:layout_marginTop="24dp"
             android:backgroundTint="@color/green"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp" />
+            android:padding="16dp"
+            android:text="@string/log_in"
+            android:textColor="#FFFFFF" />
 
         <ProgressBar
-            android:id="@+id/loginProgressBar"
+            android:id="@+id/pb_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            android:indeterminate="true" />
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
 
-
-        <!-- Sign Up as Buyer or Seller -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_gravity="center_horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp">
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account?"
+                android:text="@string/don_t_have_an_account"
                 android:textColor="#6B7280"
-                android:textSize="14sp"
-                android:gravity="center"/>
+                android:layout_gravity="center_horizontal"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="4dp"
-                android:gravity="center">
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/signUpBuyer"
+                    android:id="@+id/tv_signup_buyer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sign Up as Buyer"
-                    android:textColor="#2563EB"
-                    android:textSize="14sp"
-                    android:paddingEnd="8dp"/>
+                    android:text="@string/sign_up_as_buyer"
+                    android:textColor="#2563EB" />
 
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:text="|"
-                    android:textColor="#9CA3AF"
-                    android:textSize="14sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    />
+                    android:textColor="#9CA3AF" />
 
                 <TextView
-                    android:id="@+id/signUpSeller"
+                    android:id="@+id/tv_signup_seller"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sign Up as Seller"
-                    android:textColor="#2563EB"
-                    android:textSize="14sp"
-                    android:paddingStart="8dp"/>
+                    android:text="@string/sign_up_as_seller"
+                    android:textColor="#2563EB" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

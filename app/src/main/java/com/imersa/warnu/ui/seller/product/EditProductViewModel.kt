@@ -4,98 +4,105 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.imersa.warnu.data.model.Product
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class EditProductViewModel : ViewModel() {
+sealed class EditState {
+    object Idle : EditState()
+    object Loading : EditState()
+    object Success : EditState()
+    data class Error(val message: String) : EditState()
+}
 
-    private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+@HiltViewModel
+class EditProductViewModel @Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage
+) : ViewModel() {
 
-    private val _productData = MutableLiveData<Product?>()
-    val productData: LiveData<Product?> get() = _productData
+    private val _product = MutableLiveData<Product?>()
+    val product: LiveData<Product?> = _product
 
-    private val _uploadStatus = MutableLiveData<Result<String>>()
-    val uploadStatus: LiveData<Result<String>> get() = _uploadStatus
+    private val _editState = MutableLiveData<EditState>(EditState.Idle)
+    val editState: LiveData<EditState> = _editState
 
-    private val _updateStatus = MutableLiveData<Result<Unit>>()
-    val updateStatus: LiveData<Result<Unit>> get() = _updateStatus
+    private var currentImageUrl: String? = null
 
     fun loadProduct(productId: String) {
-        db.collection("products")
-            .document(productId)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val product = snapshot.toObject(Product::class.java)
-                    _productData.postValue(product)
-                } else {
-                    _productData.postValue(null)
-                }
-            }
-            .addOnFailureListener {
-                _productData.postValue(null)
-            }
-    }
-
-    /**
-     * Upload gambar baru dan hapus gambar lama (jika ada), simpan di folder productId
-     */
-    fun uploadImageAndDeleteOld(imageUri: Uri, oldImageUrl: String?, sellerUid: String) {
-        // Hapus gambar lama jika ada
-        if (!oldImageUrl.isNullOrEmpty()) {
+        viewModelScope.launch {
             try {
-                val oldRef = storage.getReferenceFromUrl(oldImageUrl)
-                oldRef.delete()
+                val document = firestore.collection("products").document(productId).get().await()
+                val productData = document.toObject(Product::class.java)?.copy(id = document.id)
+                _product.postValue(productData)
+                currentImageUrl = productData?.imageUrl
             } catch (e: Exception) {
-                e.printStackTrace()
+                _editState.postValue(EditState.Error("Failed to load product: ${e.message}"))
             }
         }
-
-        // Upload ke folder seller UID
-        val fileName = "${System.currentTimeMillis()}.jpg"
-        val ref = storage.reference.child("product_images/$sellerUid/$fileName")
-
-        ref.putFile(imageUri)
-            .addOnSuccessListener {
-                ref.downloadUrl.addOnSuccessListener { uri ->
-                    _uploadStatus.postValue(Result.success(uri.toString()))
-                }.addOnFailureListener { e ->
-                    _uploadStatus.postValue(Result.failure(e))
-                }
-            }
-            .addOnFailureListener { e ->
-                _uploadStatus.postValue(Result.failure(e))
-            }
     }
 
-    fun updateProduct(
+    fun saveChanges(
         productId: String,
         name: String,
-        description: String,
-        price: Double,
-        stock: Long,
+        priceStr: String,
+        stockStr: String,
         category: String,
-        imageUrl: String
+        description: String,
+        newImageUri: Uri?
     ) {
-        val productData = mapOf(
+        if (name.isBlank() || priceStr.isBlank() || stockStr.isBlank() || category.isBlank() || description.isBlank()) {
+            _editState.value = EditState.Error("All fields must be filled.")
+            return
+        }
+
+        _editState.value = EditState.Loading
+
+        viewModelScope.launch {
+            try {
+                val imageUrl = if (newImageUri != null) {
+                    // Hapus gambar lama jika ada
+                    currentImageUrl?.let { if(it.isNotEmpty()) storage.getReferenceFromUrl(it).delete().await() }
+                    // Upload gambar baru
+                    uploadNewImage(productId, newImageUri)
+                } else {
+                    currentImageUrl
+                }
+                updateProductInFirestore(productId, name, priceStr.toDouble(), stockStr.toInt(), category, description, imageUrl)
+                _editState.postValue(EditState.Success)
+            } catch (e: Exception) {
+                _editState.postValue(EditState.Error(e.message ?: "An unknown error occurred."))
+            }
+        }
+    }
+
+    private suspend fun uploadNewImage(productId: String, imageUri: Uri): String {
+        val fileName = "${System.currentTimeMillis()}_${productId}"
+        val storageRef = storage.reference.child("product_images/$fileName")
+        val uploadTask = storageRef.putFile(imageUri).await()
+        return uploadTask.storage.downloadUrl.await().toString()
+    }
+
+    private suspend fun updateProductInFirestore(
+        productId: String, name: String, price: Double, stock: Int, category: String, description: String, imageUrl: String?
+    ) {
+        val productUpdates = mapOf(
             "name" to name,
-            "description" to description,
             "price" to price,
             "stock" to stock,
             "category" to category,
+            "description" to description,
             "imageUrl" to imageUrl
         )
+        firestore.collection("products").document(productId).update(productUpdates).await()
+    }
 
-        db.collection("products")
-            .document(productId)
-            .update(productData)
-            .addOnSuccessListener {
-                _updateStatus.postValue(Result.success(Unit))
-            }
-            .addOnFailureListener { e ->
-                _updateStatus.postValue(Result.failure(e))
-            }
+    fun resetState() {
+        _editState.value = EditState.Idle
     }
 }

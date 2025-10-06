@@ -2,13 +2,10 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F0F0"
-    tools:context="com.imersa.warnu.ui.seller.profile.ProfileSellerFragment">
+    tools:context=".ui.seller.profile.ProfileSellerFragment">
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,9 +16,8 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Kartu Informasi Profil -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardInfo"
+                android:id="@+id/cv_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -36,7 +32,7 @@
                     android:padding="16dp">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardFotoProfil"
+                        android:id="@+id/cv_profile_picture"
                         android:layout_width="110dp"
                         android:layout_height="110dp"
                         android:layout_gravity="center"
@@ -49,15 +45,14 @@
                         app:cardUseCompatPadding="true">
 
                         <ImageView
-                            android:id="@+id/ivFotoProfil"
+                            android:id="@+id/iv_profile_picture"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:contentDescription="Photo Profile"
                             android:scaleType="centerCrop"
                             android:src="@drawable/placeholder_image" />
                     </com.google.android.material.card.MaterialCardView>
 
-
-                    <!-- Nama -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -68,6 +63,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
+                            android:contentDescription="Profile"
                             android:src="@drawable/ic_profile"
                             app:tint="#1A8754" />
 
@@ -78,7 +74,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvNamaLabel"
+                                android:id="@+id/tv_name_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="2dp"
@@ -87,7 +83,7 @@
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tvNamaValue"
+                                android:id="@+id/tv_name_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/black"
@@ -97,7 +93,6 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Nama Toko -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -109,7 +104,8 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
-                            android:src="@drawable/ic_badge"
+                            android:contentDescription="Store"
+                            android:src="@drawable/ic_store"
                             app:tint="#1A8754" />
 
                         <LinearLayout
@@ -119,26 +115,25 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvShopLabel"
+                                android:id="@+id/tv_store_name_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="2dp"
-                                android:text="Shop Name"
+                                android:text="Store Name"
                                 android:textColor="@android:color/darker_gray"
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tvShopName"
+                                android:id="@+id/tv_store_name_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/black"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                tools:text="Aldixxxxxx" />
+                                tools:text="Toko Aldi Jaya" />
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Telepon -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -150,6 +145,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
+                            android:contentDescription="Phone"
                             android:src="@drawable/ic_phone"
                             app:tint="#1A8754" />
 
@@ -160,7 +156,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvTeleponLabel"
+                                android:id="@+id/tv_phone_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="2dp"
@@ -169,7 +165,7 @@
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tvTeleponValue"
+                                android:id="@+id/tv_phone_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/black"
@@ -179,7 +175,6 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Email -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -191,6 +186,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
+                            android:contentDescription="E-Mail"
                             android:src="@drawable/ic_email"
                             app:tint="#1A8754" />
 
@@ -201,7 +197,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvEmailLabel"
+                                android:id="@+id/tv_email_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="2dp"
@@ -210,7 +206,7 @@
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tvEmailValue"
+                                android:id="@+id/tv_email_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/black"
@@ -220,7 +216,6 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Alamat -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -232,6 +227,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_marginEnd="16dp"
+                            android:contentDescription="Location"
                             android:src="@drawable/ic_location"
                             app:tint="#1A8754" />
 
@@ -242,7 +238,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tvAlamatLabel"
+                                android:id="@+id/tv_address_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="2dp"
@@ -251,7 +247,7 @@
                                 android:textSize="12sp" />
 
                             <TextView
-                                android:id="@+id/tvAlamatValue"
+                                android:id="@+id/tv_address_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/black"
@@ -261,14 +257,13 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Tombol Edit Profil -->
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEditProfil"
+                        android:id="@+id/btn_edit_profile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:backgroundTint="#1A8754"
-                        android:text="Edit Profil"
+                        android:backgroundTint="@color/green"
+                        android:text="Edit Profile"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         app:cornerRadius="8dp" />
@@ -276,9 +271,8 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ProgressBar untuk loading -->
             <ProgressBar
-                android:id="@+id/progressBar"
+                android:id="@+id/progress_bar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:visibility="gone"

@@ -1,7 +1,5 @@
 package com.imersa.warnu.ui.seller.product
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,168 +7,122 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.imersa.warnu.R
 import com.imersa.warnu.databinding.FragmentEditProductBinding
-import com.imersa.warnu.data.model.Product
+import dagger.hilt.android.AndroidEntryPoint
+import java.text.DecimalFormat
 
+@AndroidEntryPoint
 class EditProductFragment : Fragment() {
 
     private var _binding: FragmentEditProductBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: EditProductViewModel by viewModels()
-
-    private var imageUri: Uri? = null
+    private var selectedImageUri: Uri? = null
     private var productId: String? = null
-    private var currentImageUrl: String? = null
 
-
-
-    private val pickImageLauncher =
-        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                imageUri = result.data?.data
-                binding.ivKategoriPreview.visibility = View.VISIBLE
-                binding.ivKategoriPreview.setImageURI(imageUri)
-            }
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            Glide.with(this)
+                .load(it)
+                .into(binding.ivProductImagePreview)
         }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditProductBinding.inflate(inflater, container, false)
-
-        productId = arguments?.getString("productId")
-        currentImageUrl = arguments?.getString("imageUrl")
-
-        if (productId == null) {
-            Toast.makeText(requireContext(), "ID Produk tidak ditemukan", Toast.LENGTH_SHORT).show()
-            parentFragmentManager.popBackStack()
-            return binding.root
-        }
-
-        setupUI()
-        observeViewModel()
-
-        // Load data produk dari Firestore
-        viewModel.loadProduct(productId!!)
-
         return binding.root
     }
 
-    private fun setupUI() {
-        // Setup kategori dropdown
-        val kategoriList = listOf("Fashion", "Electronics", "Home", "Toys")
-        val adapterKategori =
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, kategoriList)
-        binding.actvKategori.setAdapter(adapterKategori)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Tampilkan gambar awal (kalau ada)
-        loadImage(currentImageUrl)
-
-        // Pilih gambar baru
-        binding.btnPilihGambarBaru.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+        productId = arguments?.getString("productId")
+        if (productId == null) {
+            Toast.makeText(context, "Product ID not found.", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+            return
         }
 
-        // Simpan produk
-        binding.btnSimpanProduk.setOnClickListener { simpanPerubahan() }
+        viewModel.loadProduct(productId!!)
+
+        setupCategoryDropdown()
+        setupListeners()
+        observeViewModel()
+    }
+
+    private fun setupCategoryDropdown() {
+        val categories = listOf("Fashion", "Electronics", "Home", "Toys", "Books", "Sports")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
+        binding.actvCategory.setAdapter(adapter)
+    }
+
+    private fun setupListeners() {
+        binding.btnSelectNewImage.setOnClickListener {
+            imagePickerLauncher.launch("image/*")
+        }
+
+        binding.btnSaveChanges.setOnClickListener {
+            productId?.let {
+                viewModel.saveChanges(
+                    productId = it,
+                    name = binding.etProductName.text.toString(),
+                    priceStr = binding.etPrice.text.toString(),
+                    stockStr = binding.etStock.text.toString(),
+                    category = binding.actvCategory.text.toString(),
+                    description = binding.etDescription.text.toString(),
+                    newImageUri = selectedImageUri
+                )
+            }
+        }
     }
 
     private fun observeViewModel() {
-        viewModel.productData.observe(viewLifecycleOwner) { product ->
+        viewModel.product.observe(viewLifecycleOwner) { product ->
             product?.let {
-                binding.etNamaProduk.setText(it.name)
-                binding.etDeskripsi.setText(it.description)
-                binding.etHarga.setText(it.price.toString())
-                binding.etStok.setText(it.stock.toString())
-                binding.actvKategori.setText(it.category, false)
-                currentImageUrl = it.imageUrl
-                loadImage(currentImageUrl)
+                binding.etProductName.setText(it.name)
+
+                val price = it.price ?: 0.0
+                val formatter = DecimalFormat("#")
+                binding.etPrice.setText(formatter.format(price))
+
+                binding.etStock.setText(it.stock?.toString())
+                binding.actvCategory.setText(it.category, false)
+                binding.etDescription.setText(it.description)
+                Glide.with(this)
+                    .load(it.imageUrl)
+                    .into(binding.ivProductImagePreview)
             }
         }
 
-        viewModel.uploadStatus.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { imageUrl ->
-                productId?.let { pid -> updateProductInFirestore(pid, imageUrl) }
+        viewModel.editState.observe(viewLifecycleOwner) { state ->
+            binding.progressBar.isVisible = state is EditState.Loading
+            binding.btnSaveChanges.isEnabled = state !is EditState.Loading
+
+            when (state) {
+                is EditState.Success -> {
+                    Toast.makeText(context, "Product updated successfully!", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                    viewModel.resetState()
+                }
+                is EditState.Error -> {
+                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.resetState()
+                }
+                else -> {  }
             }
-            result.onFailure {
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal upload gambar: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-        viewModel.updateStatus.observe(viewLifecycleOwner) { result ->
-            result.onSuccess {
-                Toast.makeText(requireContext(), "Produk berhasil diupdate", Toast.LENGTH_SHORT)
-                    .show()
-                parentFragmentManager.popBackStack()
-            }
-            result.onFailure {
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal update produk: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun simpanPerubahan() {
-        val nama = binding.etNamaProduk.text.toString().trim()
-        val deskripsi = binding.etDeskripsi.text.toString().trim()
-        val harga = binding.etHarga.text.toString().trim().toDoubleOrNull()
-        val stok = binding.etStok.text.toString().trim().toLongOrNull()
-        val kategori = binding.actvKategori.text.toString().trim()
-
-        if (nama.isEmpty() || deskripsi.isEmpty() || harga == null || stok == null || kategori.isEmpty()) {
-            Toast.makeText(requireContext(), "Semua field harus diisi!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val sellerUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (sellerUid == null) {
-            Toast.makeText(requireContext(), "User tidak terautentikasi", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (imageUri != null) {
-            // Kirim UID seller ke ViewModel
-            viewModel.uploadImageAndDeleteOld(imageUri!!, currentImageUrl, sellerUid)
-        } else {
-            updateProductInFirestore(productId!!, currentImageUrl ?: "")
-        }
-    }
-
-
-    private fun updateProductInFirestore(productId: String, imageUrl: String) {
-        val nama = binding.etNamaProduk.text.toString().trim()
-        val deskripsi = binding.etDeskripsi.text.toString().trim()
-        val harga = binding.etHarga.text.toString().trim().toDouble()
-        val stok = binding.etStok.text.toString().trim().toLong()
-        val kategori = binding.actvKategori.text.toString().trim()
-
-        viewModel.updateProduct(productId, nama, deskripsi, harga, stok, kategori, imageUrl)
-    }
-
-    private fun loadImage(url: String?) {
-        if (!url.isNullOrEmpty()) {
-            binding.ivKategoriPreview.visibility = View.VISIBLE
-            Glide.with(requireContext())
-                .load(url)
-                .placeholder(R.drawable.placeholder_image)
-                .into(binding.ivKategoriPreview)
-        } else {
-            binding.ivKategoriPreview.visibility = View.GONE
         }
     }
 

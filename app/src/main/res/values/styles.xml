@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Style kustom untuk Switch -->
-    <style name="GreenSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
-        <!-- warna thumb (lingkaran) saat aktif -->
-        <item name="thumbTint">@color/statusGreen</item>
-        <!-- warna track (rel) saat aktif -->
-        <item name="trackTint">#A5D6A7</item>
+    <style name="ShapeAppearanceOverlay.App.Corner.Medium" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> 
     </style>
+
+    <style name="RoundedImageStyle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
 
 </resources>

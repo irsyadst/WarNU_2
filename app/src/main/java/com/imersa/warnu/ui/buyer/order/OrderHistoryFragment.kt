@@ -4,12 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.imersa.warnu.databinding.FragmentOrderHistoryBinding // Buat layout ini
+import com.imersa.warnu.R
+import com.imersa.warnu.databinding.FragmentOrderHistoryBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class OrderHistoryFragment : Fragment() {
 
     private var _binding: FragmentOrderHistoryBinding? = null
@@ -28,27 +32,34 @@ class OrderHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         observeViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadOrderHistory()
+    }
+
     private fun setupRecyclerView() {
-        orderAdapter = OrderHistoryAdapter()
-        binding.rvOrders.apply {
+        orderAdapter = OrderHistoryAdapter { order ->
+            val bundle = bundleOf("orderId" to order.orderId)
+            findNavController().navigate(R.id.nav_detail_order_buyer, bundle)
+        }
+
+        binding.rvOrderHistory.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = orderAdapter
         }
     }
 
     private fun observeViewModel() {
-        viewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBar.isVisible = it
-        }
-
         viewModel.orders.observe(viewLifecycleOwner) { orders ->
-            binding.emptyLayout.isVisible = orders.isEmpty() && !viewModel.isLoading.value!!
+            binding.tvNoOrders.visibility = if (orders.isEmpty()) View.VISIBLE else View.GONE
             orderAdapter.submitList(orders)
+        }
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
 
@@ -57,3 +68,4 @@ class OrderHistoryFragment : Fragment() {
         _binding = null
     }
 }
+

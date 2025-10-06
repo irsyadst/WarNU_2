@@ -18,6 +18,7 @@
             android:id="@+id/iv_product_image"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:contentDescription="Product Image"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -36,7 +37,7 @@
             app:layout_constraintEnd_toStartOf="@+id/btn_remove_item"
             app:layout_constraintStart_toEndOf="@id/iv_product_image"
             app:layout_constraintTop_toTopOf="@id/iv_product_image"
-            tools:text="Nama Produk yang Sangat Panjang Sekali" />
+            tools:text="Product Name That is Very Long" />
 
         <TextView
             android:id="@+id/tv_product_price"
@@ -54,6 +55,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Remove Item Button"
             android:src="@drawable/ic_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -74,6 +76,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/bg_qty_button"
+                android:contentDescription="Decrease Quantity Button"
                 android:src="@drawable/ic_drop" />
 
             <TextView
@@ -91,6 +94,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/bg_qty_button"
+                android:contentDescription="Increase Quantity Button"
                 android:src="@drawable/ic_add" />
         </LinearLayout>
 

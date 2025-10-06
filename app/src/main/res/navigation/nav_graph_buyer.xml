@@ -3,47 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_buyer"
-    app:startDestination="@id/homeBuyerFragment">
+    app:startDestination="@id/nav_home">
 
     <fragment
-        android:id="@+id/homeBuyerFragment"
+        android:id="@+id/nav_home"
         android:name="com.imersa.warnu.ui.buyer.home.HomeBuyerFragment"
-        android:label="Beranda"
-        tools:layout="@layout/fragment_home_buyer">
-
-        <action
-            android:id="@+id/action_homeBuyerFragment_to_detailProductFragment"
-            app:destination="@id/detailProductFragment" />
-
-        <action
-            android:id="@+id/action_homeBuyerFragment_to_cartFragment"
-            app:destination="@id/cartFragment" />
-    </fragment>
-
+        android:label="Home"
+        tools:layout="@layout/fragment_home_buyer" />
     <fragment
-        android:id="@+id/detailProductFragment"
-        android:name="com.imersa.warnu.ui.seller.product.DetailProductFragment"
-        android:label="Detail Produk"
-        tools:layout="@layout/fragment_detail_product">
-
-        <action
-            android:id="@+id/action_detailProductFragment_to_cartFragment"
-            app:destination="@id/cartFragment" />
-    </fragment>
-
+        android:id="@+id/nav_profile"
+        android:name="com.imersa.warnu.ui.buyer.profile.ProfileBuyerFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile_buyer" />
     <fragment
-        android:id="@+id/cartFragment"
+        android:id="@+id/nav_order_history"
+        android:name="com.imersa.warnu.ui.buyer.order.OrderHistoryFragment"
+        android:label="Order History"
+        tools:layout="@layout/fragment_order_history" />
+    <!-- TAG ACTION TELAH DIHAPUS DARI SINI -->
+    <fragment
+        android:id="@+id/nav_cart"
         android:name="com.imersa.warnu.ui.buyer.cart.CartFragment"
-        android:label="Keranjang"
+        android:label="Cart"
         tools:layout="@layout/fragment_cart" />
     <fragment
-        android:id="@+id/orderHistoryFragment"
-        android:name="com.imersa.warnu.ui.buyer.order.OrderHistoryFragment"
-        android:label="Riwayat Pesanan"
-        tools:layout="@layout/fragment_order_history" />
+        android:id="@+id/nav_product_detail"
+        android:name="com.imersa.warnu.ui.seller.product.DetailProductFragment"
+        android:label="Product Detail"
+        tools:layout="@layout/fragment_detail_product" />
     <fragment
-        android:id="@+id/profileSellerFragment"
-        android:name="com.imersa.warnu.ui.seller.profile.ProfileSellerFragment"
-        android:label="fragment_profile_seller"
-        tools:layout="@layout/fragment_profile_seller" />
+        android:id="@+id/nav_edit_profile_buyer"
+        android:name="com.imersa.warnu.ui.buyer.profile.EditProfileBuyerFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile_buyer" />
+
+    <fragment
+        android:id="@+id/nav_detail_order_buyer"
+        android:name="com.imersa.warnu.ui.buyer.order.DetailOrderBuyerFragment"
+        android:label="Order Detail"
+        tools:layout="@layout/fragment_detail_order_buyer"/>
+
+
 </navigation>
+

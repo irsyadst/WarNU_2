@@ -1,5 +1,6 @@
 package com.imersa.warnu.ui.buyer.product
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +17,8 @@ class ProductAdapter(
 ) : androidx.recyclerview.widget.ListAdapter<Product, ProductAdapter.ViewHolder>(ProdukDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_product_buyer, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_product_buyer, parent, false)
         return ViewHolder(view, onItemClick)
     }
 
@@ -26,13 +27,13 @@ class ProductAdapter(
     }
 
     class ViewHolder(
-        itemView: View,
-        val onItemClick: (Product) -> Unit
+        itemView: View, val onItemClick: (Product) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
-        private val imgProduk: ImageView = itemView.findViewById(R.id.imgProdukBuyer)
-        private val tvNama: TextView = itemView.findViewById(R.id.tvNamaProdukBuyer)
-        private val tvHarga: TextView = itemView.findViewById(R.id.tvHargaProdukBuyer)
+        private val imgProduk: ImageView = itemView.findViewById(R.id.iv_product_buyer)
+        private val tvNama: TextView = itemView.findViewById(R.id.tv_product_name_buyer)
+        private val tvHarga: TextView = itemView.findViewById(R.id.tv_product_price_buyer)
 
+        @SuppressLint("DefaultLocale")
         fun bind(produk: Product) {
             tvNama.text = produk.name ?: "-"
             val priceText = if (produk.price != null) {
@@ -42,10 +43,8 @@ class ProductAdapter(
             }
             tvHarga.text = priceText
 
-            Glide.with(itemView.context)
-                .load(produk.imageUrl)
-                .placeholder(R.drawable.placeholder_image)
-                .into(imgProduk)
+            Glide.with(itemView.context).load(produk.imageUrl)
+                .placeholder(R.drawable.placeholder_image).into(imgProduk)
 
             itemView.setOnClickListener {
                 onItemClick(produk)

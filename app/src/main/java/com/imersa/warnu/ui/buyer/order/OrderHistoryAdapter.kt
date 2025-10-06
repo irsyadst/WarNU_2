@@ -1,67 +1,78 @@
 package com.imersa.warnu.ui.buyer.order
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.imersa.warnu.R
 import com.imersa.warnu.data.model.Order
-import com.imersa.warnu.databinding.ItemOrderHistoryBinding
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
-class OrderHistoryAdapter : ListAdapter<Order, OrderHistoryAdapter.OrderViewHolder>(DIFF_CALLBACK) {
+class OrderHistoryAdapter(private val onItemClick: (Order) -> Unit) :
+    ListAdapter<Order, OrderHistoryAdapter.OrderViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
-        val binding = ItemOrderHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return OrderViewHolder(binding)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_order_history, parent, false)
+        return OrderViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val order = getItem(position)
+        holder.itemView.setOnClickListener {
+            onItemClick(order)
+        }
+        holder.bind(order)
     }
 
-    inner class OrderViewHolder(private val binding: ItemOrderHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
+    class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvOrderId: TextView = itemView.findViewById(R.id.tv_order_id)
+        private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
+        private val tvTotalAmount: TextView = itemView.findViewById(R.id.tv_total_amount)
+        private val tvStatus: TextView = itemView.findViewById(R.id.tv_status)
+
+        @SuppressLint("SetTextI18n")
         fun bind(order: Order) {
-            binding.apply {
-                tvOrderId.text = order.orderId
+            tvOrderId.text = "Order ID: ${order.orderId}"
 
-                // Format tanggal
-                order.createdAt?.toDate()?.let { date ->
-                    val format = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("in", "ID"))
-                    tvOrderDate.text = format.format(date)
-                }
+            val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+            tvDate.text = order.createdAt?.toDate()?.let { sdf.format(it) } ?: "No date"
 
-                // Format harga
-                val localeID = Locale("in", "ID")
-                val numberFormat = NumberFormat.getCurrencyInstance(localeID)
-                tvTotalPrice.text = numberFormat.format(order.totalAmount ?: 0.0)
+            val formatter = NumberFormat.getCurrencyInstance(Locale("in", "ID")) as DecimalFormat
+            formatter.maximumFractionDigits = 0
+            formatter.minimumFractionDigits = 0
+            tvTotalAmount.text = formatter.format(order.totalAmount ?: 0.0)
 
-                // Atur status & warna
-                val status = order.paymentStatus?.uppercase(Locale.ROOT)
-                tvStatus.text = status
-                when (status) {
-                    "SETTLEMENT" -> {
-                        tvStatus.background = ContextCompat.getDrawable(itemView.context, R.drawable.circle_green) // Buat drawable hijau
-                    }
-                    "PENDING" -> {
-                        tvStatus.background = ContextCompat.getDrawable(itemView.context, R.drawable.status_pending_background)
-                    }
-                    else -> { // FAILED, EXPIRE, CANCEL
-                        tvStatus.background = ContextCompat.getDrawable(itemView.context, R.drawable.status_cancelled_background) // Buat drawable merah
-                    }
-                }
+            val status = order.orderStatus ?: "pending"
+            tvStatus.text = status.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            val statusBackground = when (status.lowercase(Locale.getDefault())) {
+                "pending" -> R.drawable.status_pending_background
+                "processing" -> R.drawable.status_processing_background
+                "shipped" -> R.drawable.status_shipped_background
+                "completed" -> R.drawable.status_completed_background
+                "cancelled" -> R.drawable.status_cancelled_background
+                "settlement" -> R.drawable.status_settlement_background
+                else -> R.drawable.status_pending_background
             }
+            tvStatus.background = ContextCompat.getDrawable(itemView.context, statusBackground)
         }
     }
 
-    companion object {
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Order>() {
-            override fun areItemsTheSame(oldItem: Order, newItem: Order): Boolean = oldItem.orderId == newItem.orderId
-            override fun areContentsTheSame(oldItem: Order, newItem: Order): Boolean = oldItem == newItem
+    class DiffCallback : DiffUtil.ItemCallback<Order>() {
+        override fun areItemsTheSame(oldItem: Order, newItem: Order): Boolean {
+            return oldItem.orderId == newItem.orderId
+        }
+
+        override fun areContentsTheSame(oldItem: Order, newItem: Order): Boolean {
+            return oldItem == newItem
         }
     }
 }

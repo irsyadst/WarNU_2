@@ -3,63 +3,71 @@ package com.imersa.warnu.ui.seller.profile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class ProfileSellerViewModel : ViewModel() {
+@HiltViewModel
+class ProfileSellerViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : ViewModel() {
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private val _name = MutableLiveData<String?>()
+    val name: LiveData<String?> = _name
 
-    // LiveData untuk data profil seller
-    private val _sellerName = MutableLiveData<String>()
-    val sellerName: LiveData<String> get() = _sellerName
+    private val _storeName = MutableLiveData<String?>()
+    val storeName: LiveData<String?> = _storeName
 
-    private val _sellerEmail = MutableLiveData<String>()
-    val sellerEmail: LiveData<String> get() = _sellerEmail
+    private val _email = MutableLiveData<String?>()
+    val email: LiveData<String?> = _email
 
-    private val _storeName = MutableLiveData<String>()
-    val storeName: LiveData<String> get() = _storeName
+    private val _phone = MutableLiveData<String?>()
+    val phone: LiveData<String?> = _phone
 
-    private val _phone = MutableLiveData<String>()
-    val phone: LiveData<String> get() = _phone
+    private val _address = MutableLiveData<String?>()
+    val address: LiveData<String?> = _address
 
-    private val _address = MutableLiveData<String>()
-    val address: LiveData<String> get() = _address
-
-    private val _photoUrl = MutableLiveData<String>()
-    val photoUrl: LiveData<String> get() = _photoUrl
+    private val _photoUrl = MutableLiveData<String?>()
+    val photoUrl: LiveData<String?> = _photoUrl
 
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    val isLoading: LiveData<Boolean> = _isLoading
 
     private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> get() = _errorMessage
+    val errorMessage: LiveData<String?> = _errorMessage
 
-    fun loadSellerProfile() {
-        val userId = auth.currentUser?.uid ?: return
+    fun loadUserProfile() {
+        _isLoading.value = true
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            _errorMessage.value = "User not logged in."
+            _isLoading.value = false
+            return
+        }
 
-        firestore.collection("users")
-            .document(userId)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (doc.exists()) {
-                    _sellerName.value = doc.getString("name") ?: "Toko"
-                    _sellerEmail.value = doc.getString("email") ?: "toko1@gmail.com"
-                    _storeName.value = doc.getString("storeName") ?: "Toko1"
-                    _phone.value = doc.getString("phone") ?: "1234567"
-                    _address.value = doc.getString("address") ?: "Jakarta"
-                    _photoUrl.value = doc.getString("photoUrl") ?: ""
-                    _errorMessage.value = null
+        viewModelScope.launch {
+            try {
+                val document = firestore.collection("users").document(userId).get().await()
+                if (document.exists()) {
+                    _name.postValue(document.getString("name"))
+                    _storeName.postValue(document.getString("storeName"))
+                    _email.postValue(document.getString("email"))
+                    _phone.postValue(document.getString("phone"))
+                    _address.postValue(document.getString("address"))
+                    _photoUrl.postValue(document.getString("profileImageUrl"))
                 } else {
-                    _errorMessage.value = "Data profil tidak ditemukan"
+                    _errorMessage.postValue("Profile data not found.")
                 }
+            } catch (e: Exception) {
+                _errorMessage.postValue(e.message)
+            } finally {
+                _isLoading.postValue(false)
             }
-            .addOnFailureListener { e ->
-                _errorMessage.value = e.message ?: "Gagal memuat data profil"
-            }
-            .addOnCompleteListener {
-                _isLoading.value = false
-            }
+        }
     }
 }

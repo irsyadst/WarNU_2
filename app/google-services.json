@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "260081705366",
+    "firebase_url": "https://warnu-f1434-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "warnu-f1434",
+    "storage_bucket": "warnu-f1434.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260081705366:android:39e1fbee6f86c483ccfdb7",
+        "android_client_info": {
+          "package_name": "com.imersa.warnu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260081705366-3r5tjsq9di4437c98a3np8b4v2h0f8b3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.imersa.warnu",
+            "certificate_hash": "bfdd45e077746904f46b297a8121829a4049d356"
+          }
+        },
+        {
+          "client_id": "260081705366-5tqcluanjf6buaaeerevuo6ccca0g19p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Ivat-ANb0gWl7Dr5vaUdKy15UYorYtk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260081705366-5tqcluanjf6buaaeerevuo6ccca0g19p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

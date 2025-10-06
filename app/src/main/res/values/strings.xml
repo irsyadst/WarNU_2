@@ -1,81 +1,44 @@
 <resources>
     <string name="app_name">WARNU</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-
-    <!-- Login & Register -->
-    <string name="login_title">Masuk sebagai Seller</string>
-    <string name="email_hint">Email</string>
-    <string name="password_hint">Password</string>
-    <string name="login_button">Login</string>
-    <string name="no_account">Belum punya akun?</string>
-    <string name="register_text">Register</string>
-    <string name="register_link">Register</string>
-    <string name="signup_seller_title">Daftar sebagai Seller</string>
-    <string name="signup_title">Daftar sebagai Seller</string>
-    <string name="full_name">Nama Lengkap</string>
-    <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="confirm_password">Konfirmasi Password</string>
-    <string name="address">Alamat</string>
-    <string name="login">Login</string>
-    <string name="dont_have_account">Belum punya akun?</string>
-    <string name="register">Register</string>
-
-    <!-- Icon Descriptions -->
-    <string name="email_icon_desc">Ikon email</string>
-    <string name="password_icon_desc">Ikon password</string>
-    <string name="circle_icon_desc">Lingkaran hijau</string>
-    <string name="desc_icon_person">Ikon orang</string>
-    <string name="desc_icon_email">Ikon email</string>
-    <string name="desc_icon_password">Ikon kunci</string>
-    <string name="desc_icon_location">Ikon lokasi</string>
-    <string name="icon_person">Ikon Nama Pengguna</string>
-    <string name="icon_email">Ikon Email</string>
-    <string name="icon_password">Ikon Password</string>
-    <string name="icon_confirm_password">Ikon Konfirmasi Password</string>
-    <string name="icon_address">Ikon Alamat</string>
-    <string name="hamburger_menu_desc">Menu</string>
 
     <!-- Seller -->
-    <string name="dashboard_seller">Dashboard Seller</string>
     <string name="tambah_produk">Tambah Produk</string>
     <string name="product_name">Kaos</string>
-    <string name="product_price">Rp 20000,00</string>
-    <string name="product_stock">Stok: 10</string>
 
-    <!-- Drawer -->
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <!-- Driver -->
-    <string name="dashboard_driver_title">Dashboard Driver</string>
-    <string name="driver_photo_desc">Foto profil driver</string>
-    <string name="driver_greeting_placeholder">Halo, Rafi Driver</string>
-    <string name="driver_status_active">Status: Aktif</string>
-    <string name="driver_ready_prompt">Siap menerima pesanan hari ini?</string>
-
-    <!-- Cart -->
-    <string name="cart_title">Keranjang Belanja</string>
-    <string name="cart_empty">Keranjang kosong</string>
-    <string name="cart_total">Total: Rp 0</string>
-    <string name="cart_checkout">Checkout</string>
-    <string name="cart_increase_qty">Tambah jumlah</string>
-    <string name="cart_decrease_qty">Kurangi jumlah</string>
-    <string name="cart_remove_item">Hapus produk</string>
-    <string name="cart_item_image">Gambar produk di keranjang</string>
-
-    <!-- Common Actions -->
-    <string name="action_save">Simpan</string>
-    <string name="action_cancel">Batal</string>
-    <string name="action_delete">Hapus</string>
-    <string name="action_edit">Edit</string>
-
-    <!-- Error & Validation -->
-    <string name="error_email_required">Email harus diisi</string>
-    <string name="error_password_required">Password harus diisi</string>
-    <string name="error_invalid_email">Format email tidak valid</string>
-    <string name="error_password_mismatch">Password tidak sama</string>
-    <string name="error_field_required">Field ini wajib diisi</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="logo_warnu">Logo WarNu</string>
+    <string name="warnu">WarNU</string>
+    <string name="memproses_pembayaran">Memproses pembayaran...</string>
+    <string name="tidak_ada_produk_tersedia">Tidak ada produk tersedia</string>
+    <string name="search">Search</string>
+    <string name="cari_produk">Cari produk...</string>
+    <string name="nama_produk">Nama Produk</string>
+    <string name="deskripsi">Deskripsi</string>
+    <string name="harga">Harga</string>
+    <string name="stok">Stok</string>
+    <string name="kategori">Kategori</string>
+    <string name="category_preview">Category Preview</string>
+    <string name="pilih_gambar">Pilih gambar</string>
+    <string name="simpan_produk">Simpan produk</string>
+    <string name="belum_ada_pesanan">Belum Ada Pesanan</string>
+    <string name="receipt">Receipt</string>
+    <string name="semua_pesanan_anda_akan_muncul_di_sini">Semua pesanan Anda akan muncul di sini.</string>
+    <string name="aksi_buyer">Aksi Buyer</string>
+    <string name="logo">Logo</string>
+    <string name="login_to_your">Login to your</string>
+    <string name="account">Account</string>
+    <string name="enter_your_email_and_password_to_log_in">Enter your email and password to log in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="toggle_password_visibility">Toggle Password Visibility</string>
+    <string name="forgot_password">Forgot Password ?</string>
+    <string name="log_in">Log In</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="sign_up_as_buyer">Sign Up as Buyer</string>
+    <string name="I">|</string>
+    <string name="sign_up_as_seller">Sign Up as Seller</string>
+    <string name="no_products_available">No Resource Available!</string>
+    <string name="add_product">Add Product</string>
+    <string name="no_orders_yet">No Order Yet!</string>
+    <string name="description">Description</string>
 </resources>

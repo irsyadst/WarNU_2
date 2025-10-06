@@ -1,37 +1,39 @@
 package com.imersa.warnu.ui.seller.product
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.bumptech.glide.Glide
 import com.imersa.warnu.R
+import com.imersa.warnu.data.model.Product
 import com.imersa.warnu.databinding.FragmentDetailProductBinding
+import com.imersa.warnu.ui.buyer.main.MainBuyerActivity
+import com.imersa.warnu.ui.seller.main.MainSellerActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import java.text.NumberFormat
-import java.util.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 @AndroidEntryPoint
 class DetailProductFragment : Fragment() {
-
     private var _binding: FragmentDetailProductBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: DetailProductViewModel by viewModels()
-    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
-    private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+    private var currentQuantity = 1
+    private var currentProduct: Product? = null
+    private var defaultTitle: CharSequence? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDetailProductBinding.inflate(inflater, container, false)
@@ -41,116 +43,121 @@ class DetailProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val appCompatActivity = requireActivity() as AppCompatActivity
+        val actionBar = appCompatActivity.supportActionBar
+
+        defaultTitle = actionBar?.title
+        actionBar?.hide()
+
+        appCompatActivity.setSupportActionBar(binding.toolbarDetail)
+        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.toolbarDetail.setNavigationOnClickListener {
+            activity?.onBackPressedDispatcher?.onBackPressed()
+        }
+
         val productId = arguments?.getString("productId")
         if (productId == null) {
-            Toast.makeText(requireContext(), "Product ID not found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Product ID not found", Toast.LENGTH_SHORT).show()
+            activity?.onBackPressedDispatcher?.onBackPressed()
             return
         }
 
-        // Ambil role dari Firestore
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            firestore.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val role = document.getString("role")
-                        if (role == "buyer") {
-                            binding.fabAddToCart.visibility = View.VISIBLE
-                        } else {
-                            binding.fabAddToCart.visibility = View.GONE
-                        }
-                    }
+        viewModel.loadProduct(productId)
+        viewModel.loadUserRole()
+        observeViewModel()
+        setupClickListeners()
+    }
+
+
+    private fun observeViewModel() {
+        viewModel.product.observe(viewLifecycleOwner) { product ->
+            product?.let {
+                currentProduct = it
+                binding.tvProductName.text = it.name
+                binding.tvProductDescription.text = it.description
+                val formatter = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+                binding.tvProductPrice.text = formatter.format(it.price ?: 0.0)
+                binding.tvProductStock.text = "Stock: ${it.stock ?: 0}"
+                Glide.with(this)
+                    .load(it.imageUrl)
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(binding.ivProductImage)
+                binding.collapsingToolbar.title = it.name
+            }
+        }
+
+        viewModel.addToCartStatus.observe(viewLifecycleOwner) { status ->
+            status?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                viewModel.onStatusMessageShown()
+                // Aktifkan kembali tombol setelah proses selesai
+                binding.fabAddToCart.isEnabled = true
+            }
+        }
+
+        viewModel.userRole.observe(viewLifecycleOwner) { role ->
+            val isBuyer = role == "buyer"
+            binding.fabAddToCart.isVisible = isBuyer
+            binding.btnIncreaseQuantity.isVisible = isBuyer
+            binding.btnDecreaseQuantity.isVisible = isBuyer
+            binding.tvQuantity.isVisible = isBuyer
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.btnIncreaseQuantity.setOnClickListener {
+            currentProduct?.stock?.let { stock ->
+                if (currentQuantity < stock) {
+                    currentQuantity++
+                    binding.tvQuantity.text = currentQuantity.toString()
+                } else {
+                    Toast.makeText(context, "You have reached the maximum stock", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Gagal ambil role user", Toast.LENGTH_SHORT).show()
-                }
+            }
+        }
+
+        binding.btnDecreaseQuantity.setOnClickListener {
+            if (currentQuantity > 1) {
+                currentQuantity--
+                binding.tvQuantity.text = currentQuantity.toString()
+            }
         }
 
         binding.fabAddToCart.setOnClickListener {
-            val currentProduct = viewModel.product.value
-            val userId = auth.currentUser?.uid
-
-            if (currentProduct?.id != null && userId != null) {
-                firestore.collection("carts")
-                    .document(userId)
-                    .collection("items")
-                    .document(currentProduct.id)
-                    .get()
-                    .addOnSuccessListener { doc ->
-                        if (doc.exists()) {
-                            // Sudah ada → update qty
-                            val currentQty = doc.getLong("quantity") ?: 0
-                            firestore.collection("carts")
-                                .document(userId)
-                                .collection("items")
-                                .document(currentProduct.id)
-                                .update("quantity", currentQty + 1)
-                                .addOnSuccessListener {
-                                    Toast.makeText(requireContext(), "Qty ditambah", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(requireContext(), "Gagal update cart", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            // Belum ada → tambahkan baru
-                            val cartItem = hashMapOf(
-                                "productId" to currentProduct.id,
-                                "name" to currentProduct.name,
-                                "price" to currentProduct.price,
-                                "quantity" to 1
-                            )
-                            firestore.collection("carts")
-                                .document(userId)
-                                .collection("items")
-                                .document(currentProduct.id)
-                                .set(cartItem)
-                                .addOnSuccessListener {
-                                    Toast.makeText(requireContext(), "Ditambahkan ke keranjang", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(requireContext(), "Gagal tambah ke cart", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                    }
-            } else {
-                Toast.makeText(requireContext(), "Produk belum dimuat", Toast.LENGTH_SHORT).show()
+            currentProduct?.let { product ->
+                // Nonaktifkan tombol untuk mencegah klik ganda
+                binding.fabAddToCart.isEnabled = false
+                viewModel.addToCart(product, currentQuantity)
             }
         }
+    }
 
-
-        viewModel.product.observe(viewLifecycleOwner) { product ->
-            val formattedPrice = NumberFormat.getNumberInstance(Locale("id", "ID")).format(product.price)
-
-            binding.tvDetailNamaProduk.text = product.name
-            binding.tvDetailHargaProduk.text = "Rp$formattedPrice"
-            binding.tvDetailDeskripsi.text = product.description
-            binding.chipKategori.text = product.category
-            binding.chipStok.text = "Stok: ${product.stock}"
-
-            Glide.with(this)
-                .load(product.imageUrl)
-                .placeholder(R.drawable.placeholder_image)
-                .into(binding.ivDetailGambarProduk)
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            binding.loadingLayout.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.contentLayout.visibility = if (isLoading) View.GONE else View.VISIBLE
-        }
-
-        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
-            message?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        viewModel.getProductById(productId)
+    override fun onStop() {
+        super.onStop()
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = defaultTitle
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        val appCompatActivity = requireActivity() as AppCompatActivity
+
+        // Logika untuk mengembalikan toolbar activity utama
+        val mainToolbarId = if (viewModel.userRole.value == "seller") R.id.seller_toolbar else R.id.buyer_toolbar
+        val mainNavHostId = if (viewModel.userRole.value == "seller") R.id.fragment_container_seller else R.id.fragment_container_buyer
+        val mainAppBarConfig = if (viewModel.userRole.value == "seller") (requireActivity() as? MainSellerActivity)?.appBarConfiguration else (requireActivity() as? MainBuyerActivity)?.appBarConfiguration
+
+        val mainToolbar = appCompatActivity.findViewById<Toolbar>(mainToolbarId)
+        mainToolbar?.let {
+            appCompatActivity.setSupportActionBar(it)
+            appCompatActivity.supportActionBar?.show()
+        }
+
+        val navHostFragment = appCompatActivity.supportFragmentManager.findFragmentById(mainNavHostId) as? NavHostFragment
+        if (navHostFragment != null && mainAppBarConfig != null) {
+            appCompatActivity.setupActionBarWithNavController(navHostFragment.navController, mainAppBarConfig)
+        }
+
         _binding = null
     }
 }

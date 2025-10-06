@@ -5,58 +5,36 @@
     android:id="@+id/drawer_layout_buyer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.buyer.main.MainBuyerActivity">
+    tools:context=".ui.buyer.main.MainBuyerActivity"
+    tools:openDrawer="start">
 
-    <!-- Konten Utama -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <!-- AppBar dengan Toolbar -->
-        <com.google.android.material.appbar.AppBarLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/buyer_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/green"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/buyer_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/green"
-                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-                app:titleTextColor="@android:color/white" />
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <!-- Tempat NavHostFragment -->
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container_buyer"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:navGraph="@navigation/nav_graph_buyer" />
+    </LinearLayout>
 
-        <!-- Tombol Aksi (Floating) -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnAksiBuyer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:contentDescription="Aksi Buyer"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_add" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <!-- Drawer Menu -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view_buyer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        android:background="?android:attr/windowBackground"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu" />
 

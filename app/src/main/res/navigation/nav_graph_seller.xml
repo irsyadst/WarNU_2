@@ -3,73 +3,62 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_seller"
-    app:startDestination="@id/HomeSellerFragment">
+    app:startDestination="@id/nav_home">
 
-    <!-- Fragment Dashboard Utama -->
     <fragment
-        android:id="@+id/HomeSellerFragment"
+        android:id="@+id/nav_home"
         android:name="com.imersa.warnu.ui.seller.home.HomeSellerFragment"
         android:label="Dashboard"
-        tools:layout="@layout/fragment_home_seller">
+        tools:layout="@layout/fragment_home_seller" />
 
-        <!-- Navigasi ke Tambah Produk -->
-        <action
-            android:id="@+id/action_HomeSellerFragment_to_addProductFragment"
-            app:destination="@id/addProductFragment" />
-
-        <!-- Navigasi ke Detail Produk -->
-        <action
-            android:id="@+id/action_HomeSellerFragment_to_detailProductFragment"
-            app:destination="@id/detailProductFragment" />
-
-        <!-- Navigasi ke EditManageFragment -->
-        <action
-            android:id="@+id/action_HomeSellerFragment_to_EditManageFragment"
-            app:destination="@id/EditManageFragment" />
-
-        <!-- Navigasi ke ProfileSellerFragment -->
-        <action
-            android:id="@+id/action_HomeSellerFragment_to_profileSellerFragment"
-            app:destination="@id/profileSellerFragment" />
-    </fragment>
-
-    <!-- Fragment untuk menambah produk baru -->
     <fragment
-        android:id="@+id/addProductFragment"
+        android:id="@+id/nav_manage_product"
+        android:name="com.imersa.warnu.ui.seller.product.EditManagerFragment"
+        android:label="Manage Product"
+        tools:layout="@layout/fragment_edit_manager" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.imersa.warnu.ui.seller.profile.ProfileSellerFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile_seller" />
+
+    <fragment
+        android:id="@+id/nav_order"
+        android:name="com.imersa.warnu.ui.seller.order.OrderManagerFragment"
+        android:label="Manage Order"
+        tools:layout="@layout/fragment_seller_orders" />
+
+    <fragment
+        android:id="@+id/nav_add_product"
         android:name="com.imersa.warnu.ui.seller.product.AddProductFragment"
-        android:label="Tambah Produk"
+        android:label="Add Product"
         tools:layout="@layout/fragment_add_product" />
 
-    <!-- Fragment untuk mengelola produk -->
     <fragment
-        android:id="@+id/EditManageFragment"
-        android:name="com.imersa.warnu.ui.seller.product.EditManageFragment"
-        android:label="Kelola Produk"
-        tools:layout="@layout/fragment_edit_manager" >
-
-        <action
-            android:id="@+id/action_EditManageFragment_to_editProductFragment"
-            app:destination="@id/editProductFragment" />
-    </fragment>
-
-    <!-- Fragment untuk edit detail produk -->
-    <fragment
-        android:id="@+id/editProductFragment"
+        android:id="@+id/nav_edit_product"
         android:name="com.imersa.warnu.ui.seller.product.EditProductFragment"
-        android:label="Edit Produk"
+        android:label="Edit Product"
         tools:layout="@layout/fragment_edit_product" />
 
-    <!-- Fragment untuk melihat detail produk -->
     <fragment
-        android:id="@+id/detailProductFragment"
+        android:id="@+id/nav_product_detail"
         android:name="com.imersa.warnu.ui.seller.product.DetailProductFragment"
-        android:label="Detail Produk"
+        android:label="Product Detail"
         tools:layout="@layout/fragment_detail_product" />
 
-    <!-- Fragment untuk melihat profil seller -->
     <fragment
-        android:id="@+id/profileSellerFragment"
-        android:name="com.imersa.warnu.ui.seller.profile.ProfileSellerFragment"
-        android:label="Profil Toko"
-        tools:layout="@layout/fragment_profile_seller" />
+        android:id="@+id/nav_edit_profile_seller"
+        android:name="com.imersa.warnu.ui.seller.profile.EditProfileSellerFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile_seller" />
+
+    <fragment
+        android:id="@+id/nav_detail_order"
+        android:name="com.imersa.warnu.ui.seller.order.DetailOrderFragment"
+        android:label="Order Detail"
+        tools:layout="@layout/fragment_detail_order" />
+
+
+
 </navigation>

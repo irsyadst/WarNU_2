@@ -11,7 +11,7 @@
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_cart"
+            android:id="@+id/rv_cart_items"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
@@ -23,7 +23,7 @@
             tools:listitem="@layout/item_cart" />
 
         <LinearLayout
-            android:id="@+id/empty_cart_layout"
+            android:id="@+id/layout_empty_cart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -38,6 +38,7 @@
             <ImageView
                 android:layout_width="120dp"
                 android:layout_height="120dp"
+                android:contentDescription="Shopping Cart"
                 android:src="@drawable/ic_shopping_cart"
                 app:tint="@color/black" />
 
@@ -45,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Keranjang Anda Kosong"
+                android:text="Your Cart is Empty"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
@@ -53,13 +54,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Ayo, cari makanan favoritmu!"/>
+                android:text="Let's find your favorite food!"/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/checkout_layout"
+        android:id="@+id/layout_checkout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -71,10 +72,10 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/label_total_price"
+                android:id="@+id/tv_total_price_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total Harga"
+                android:text="Total Price"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -87,13 +88,14 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/label_total_price"
+                app:layout_constraintTop_toBottomOf="@id/tv_total_price_label"
                 tools:text="Rp 125.000" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_checkout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/green"
                 android:text="Checkout"
                 android:paddingHorizontal="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"

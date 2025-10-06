@@ -1,176 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:fillViewport="true"
     tools:context=".ui.seller.product.EditProductFragment">
 
-    <!-- Toolbar Bagian Atas -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
-    <!-- Konten yang bisa di-scroll -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_product_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <!-- Input Nama Produk -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutNamaProduk"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_product_name"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nama Produk"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:hint="Product Name"
+                android:inputType="textCapWords"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etNamaProduk"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Sepatu Nike" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Input Deskripsi -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutDeskripsi"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_price"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/til_product_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_price"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Deskripsi"
-                app:layout_constraintTop_toBottomOf="@id/layoutNamaProduk"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:hint="Price"
+                android:inputType="numberDecimal"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDeskripsi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Sepatu lari yang nyaman" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Input Harga -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutHarga"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_stock"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/til_price"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_stock"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Harga"
-                app:layout_constraintTop_toBottomOf="@id/layoutDeskripsi"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:hint="Stock"
+                android:inputType="number"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etHarga"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    tools:text="1250000" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Input Stok -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutStok"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_category"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/til_stock"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <AutoCompleteTextView
+                android:id="@+id/actv_category"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Stok"
-                app:layout_constraintTop_toBottomOf="@id/layoutHarga"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:hint="Category"
+                android:inputType="none"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etStok"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    tools:text="10" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Dropdown Kategori -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutKategori"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_description"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/til_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_description"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Kategori"
-                app:layout_constraintTop_toBottomOf="@id/layoutStok"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:hint="Description"
+                android:gravity="top"
+                android:minLines="4"
+                android:inputType="textMultiLine"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <AutoCompleteTextView
-                    android:id="@+id/actvKategori"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    tools:text="Sneakers" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_product_image_preview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/til_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
+            tools:src="@drawable/placeholder_image" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivKategoriPreview"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toBottomOf="@id/layoutKategori"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
-                tools:src="@drawable/placeholder_image"
-                tools:visibility="visible" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_new_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Select New Image"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/iv_product_image_preview"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:backgroundTint="@color/green"
+            app:cornerRadius="12dp"
+            android:textColor="@android:color/white"/>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_changes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/btn_select_new_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:backgroundTint="@color/green"
+            app:cornerRadius="12dp"
+            android:textColor="@android:color/white"/>
 
-            <!-- Tombol Pilih Gambar Baru -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPilihGambarBaru"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="#1A8754"
-                android:paddingVertical="12dp"
-                android:text="Pilih gambar baru"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_image"
-                app:iconGravity="textStart"
-                app:layout_constraintTop_toBottomOf="@id/ivKategoriPreview"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-            <!-- Tombol Simpan Produk -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSimpanProduk"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="#1A8754"
-                android:paddingVertical="12dp"
-                android:text="Simpan produk"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_save"
-                app:iconGravity="textStart"
-                app:layout_constraintTop_toBottomOf="@id/btnPilihGambarBaru"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

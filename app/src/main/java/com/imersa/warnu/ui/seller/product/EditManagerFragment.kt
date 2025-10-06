@@ -1,5 +1,6 @@
 package com.imersa.warnu.ui.seller.product
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.imersa.warnu.R
 import com.imersa.warnu.data.model.Product
@@ -17,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class EditManageFragment : Fragment() {
+class EditManagerFragment : Fragment() {
 
     private var _binding: FragmentEditManagerBinding? = null
     private val binding get() = _binding!!
@@ -25,14 +26,11 @@ class EditManageFragment : Fragment() {
     @Inject
     lateinit var auth: FirebaseAuth
 
+    private val viewModel: EditManagerViewModel by viewModels()
     private lateinit var adapter: ProductSellerAdapter
-    private val productList = mutableListOf<Product>()
-
-    private val viewModel: EditManageViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditManagerBinding.inflate(inflater, container, false)
@@ -41,65 +39,52 @@ class EditManageFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         observeViewModel()
-
         val sellerId = auth.currentUser?.uid
         if (sellerId != null) {
             viewModel.fetchProducts(sellerId)
-        } else {
-            Toast.makeText(requireContext(), "User belum login", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupRecyclerView() {
         adapter = ProductSellerAdapter(
-            products = productList,
-            onItemClick = { product ->
-                val bundle = Bundle().apply {
-                    putString("productId", product.id ?: "")
-                }
-                findNavController().navigate(R.id.detailProductFragment, bundle)
-            },
-            onEditClick = { product ->
-                val bundle = Bundle().apply {
-                    putString("productId", product.id ?: "")
-                }
-                findNavController().navigate(R.id.editProductFragment, bundle)
-            },
-            onDeleteClick = onDeleteClick@{ product ->
-                val productId = product.id ?: ""
-                if (productId.isBlank()) {
-                    Toast.makeText(requireContext(), "Produk tidak valid", Toast.LENGTH_SHORT).show()
-                    return@onDeleteClick
-                }
-                viewModel.deleteProduct(productId) { success ->
-                    if (success) {
-                        Toast.makeText(requireContext(), "Produk dihapus", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Gagal menghapus produk", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            },
-            layoutResId = R.layout.item_edit_product
+            layoutResId = R.layout.item_edit_product,
+            onItemClick = { product -> navigateToEdit(product) },
+            onEditClick = { product -> navigateToEdit(product) },
+            onDeleteClick = { product -> showDeleteConfirmationDialog(product) }
         )
+        binding.rvManagedProducts.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvManagedProducts.adapter = adapter
+    }
 
-        binding.ProductSeller.layoutManager = GridLayoutManager(requireContext(), 1)
-        binding.ProductSeller.adapter = adapter
+    private fun navigateToEdit(product: Product) {
+        val bundle = Bundle().apply { putString("productId", product.id) }
+        findNavController().navigate(R.id.nav_edit_product, bundle)
     }
 
     private fun observeViewModel() {
         viewModel.products.observe(viewLifecycleOwner) { products ->
-            productList.clear()
-            productList.addAll(products)
-            adapter.notifyDataSetChanged()
+            binding.tvNoProducts.visibility = if (products.isEmpty()) View.VISIBLE else View.GONE
+            adapter.submitList(products)
         }
-        viewModel.errorMessage.observe(viewLifecycleOwner) { msg ->
-            msg?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                viewModel.onToastMessageShown()
             }
         }
+    }
+
+    private fun showDeleteConfirmationDialog(product: Product) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Product")
+            .setMessage("Are you sure you want to delete '${product.name}'?")
+            .setPositiveButton("Delete") { _, _ ->
+                product.id?.let { viewModel.deleteProduct(it, product.imageUrl) }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onDestroyView() {

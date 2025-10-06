@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services")
-    id("dagger.hilt.android.plugin")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.hilt.gradle)
     id("kotlin-kapt")
     id("kotlin-parcelize")
 }
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.imersa.warnu"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -32,12 +32,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        @Suppress("DEPRECATION")
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -51,49 +52,46 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.cardview)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.drawerlayout)
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.legacy.support.v4)
 
     // Lifecycle & ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Firebase
+    // Firebase (Menggunakan Bill of Materials)
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.google.firebase.firestore.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-debug")
+
+    // Hilt for Dependency Injection
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.fragment)
+
+    // Image Loading
+    implementation(libs.glide)
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    // Payments
+    implementation(libs.midtrans.uikit)
+
+    // Google & Facebook Services
     implementation(libs.play.services.auth)
-    implementation ("com.google.firebase:firebase-storage-ktx")
-
-    // Facebook Login
-    implementation(libs.facebook.login)
-
-    // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
-    implementation(libs.androidx.legacy.support.v4)
-    implementation(libs.play.services.analytics.impl)
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
-    implementation("androidx.hilt:hilt-navigation-fragment:1.1.0")
-
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
 
     // Testing
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    //maps
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
-
-    implementation("com.midtrans:uikit:2.0.0-SANDBOX")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }

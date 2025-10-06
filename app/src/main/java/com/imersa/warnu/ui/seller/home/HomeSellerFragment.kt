@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.imersa.warnu.R
-import com.imersa.warnu.data.model.Product
 import com.imersa.warnu.databinding.FragmentHomeSellerBinding
 import com.imersa.warnu.ui.seller.product.ProductSellerAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,80 +22,55 @@ class HomeSellerFragment : Fragment() {
     private var _binding: FragmentHomeSellerBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: HomeSellerViewModel by viewModels()
-
     @Inject
     lateinit var auth: FirebaseAuth
 
+    private val viewModel: HomeSellerViewModel by viewModels()
     private lateinit var adapter: ProductSellerAdapter
-    private val productList = mutableListOf<Product>()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeSellerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         observeViewModel()
-
-        // Tombol tambah produk
-        binding.btnTambahProdukSeller.setOnClickListener {
-            val navController = requireActivity().findNavController(R.id.fragment_container_seller)
-            navController.navigate(R.id.addProductFragment) // ganti sesuai ID tujuan di nav_graph_seller
+        binding.fabAddProduct.setOnClickListener {
+            // Langsung ke ID fragment tujuan
+            findNavController().navigate(R.id.nav_add_product)
         }
-        val sellerId = auth.currentUser?.uid ?: return
-        viewModel.fetchProducts(sellerId)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadProducts()
+    }
 
     private fun setupRecyclerView() {
         adapter = ProductSellerAdapter(
-            products = productList,
+            layoutResId = R.layout.item_product_seller,
             onItemClick = { product ->
                 val bundle = Bundle().apply {
-                    putString("productId", product.id ?: "")
-                    putString("name", product.name)
-                    putString("price", product.price?.toString() ?: "0")
-                    putString("description", product.description)
-                    putInt("stock", product.stock ?: 0)
-                    putString("imageUrl", product.imageUrl)
-                    putString("category", product.category)
+                    putString("productId", product.id)
                 }
-                parentFragmentManager.setFragmentResult("productDetail", bundle)
-                val navController =
-                    requireActivity().findNavController(R.id.fragment_container_seller)
-                navController.navigate(R.id.detailProductFragment, bundle)
-            },
-            layoutResId = R.layout.item_product_dashboard
+                findNavController().navigate(R.id.nav_product_detail, bundle)
+            }
         )
-        binding.rvProductSeller.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.rvProductSeller.adapter = adapter
+        binding.rvSellerProducts.adapter = adapter
     }
 
     private fun observeViewModel() {
         viewModel.products.observe(viewLifecycleOwner) { products ->
-            productList.clear()
-            productList.addAll(products)
-            adapter.notifyDataSetChanged()
-
-            binding.tvEmpty.visibility = if (products.isEmpty()) View.VISIBLE else View.GONE
-            binding.rvProductSeller.visibility = if (products.isEmpty()) View.GONE else View.VISIBLE
+            binding.tvNoProducts.visibility = if (products.isEmpty()) View.VISIBLE else View.GONE
+            adapter.submitList(products)
         }
-
-        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
-            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-        }
-
-        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
-            message?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-            }
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
 

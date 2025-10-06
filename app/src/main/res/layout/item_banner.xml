@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="16dp">
 
     <ImageView
-        android:id="@+id/imageBanner"
+        android:id="@+id/iv_banner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:adjustViewBounds="true" />
+        android:contentDescription="@string/logo_warnu" />
+
 </androidx.cardview.widget.CardView>
