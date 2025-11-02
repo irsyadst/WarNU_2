@@ -1,4 +1,3 @@
-// app/src/main/java/com/imersa/warnu/data/model/ApiService.kt
 package com.imersa.warnu.data.model
 
 import retrofit2.Call

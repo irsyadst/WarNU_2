@@ -45,6 +45,7 @@ class CartFragment : Fragment() {
             val allOriginalItems = viewModel.getOriginalCartItems()
             if (allOriginalItems.isNotEmpty()) {
                 startCheckoutActivity(allOriginalItems)
+                viewModel.clearCart()
             } else {
                 Toast.makeText(requireContext(), "Your cart is empty.", Toast.LENGTH_SHORT).show()
             }
