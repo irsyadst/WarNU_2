@@ -38,7 +38,7 @@ class CheckoutActivity : AppCompatActivity() {
 
     private val apiService: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://warnu-f1434.et.r.appspot.com/api/")
+            .baseUrl("https://warnu-new.uc.r.appspot.com//api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
