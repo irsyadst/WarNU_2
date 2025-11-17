@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68778227521",
+    "project_id": "warnu-new",
+    "storage_bucket": "warnu-new.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68778227521:android:b739bde78a0cbb18d753c0",
+        "android_client_info": {
+          "package_name": "com.imersa.warnu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPARuDyzS-ZOd-iXhhAJbZvCfJQLApqqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
